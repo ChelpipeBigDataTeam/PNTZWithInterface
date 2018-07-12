@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Uploads</title>
+</head>
+<body>
+    <p align="center" style="color:#000000; font-size:30px">Предсказательная система ТО "ПНТЗ"</p>
+    <form action="/" method="POST" enctype="multipart/form-data">
+        <center>
+            <input type="file" name="file" id="file_id">
+            <button type="submit">Рассчитать</button>
+            <p>
+                <input type="radio" name="options" id="option1" value="predict"> Прогноз свойств </input><br>
+                <input type="radio" name="options" id="option2" value="optimizer"> Оптимизатор </input><br>
+            </p>
+        </center>
+    </form>
+    {% if args["method"] == "POST" %}
+        <center>
+            <p align="center" style="color:#000000; font-size:16px">Файл успешно загружен, данные расcчитаны</p>
+            <p align="center" style="color:#000000; font-size:16px">{{args["data"]}}</p>
+            <form action="/downloadExcelFile">
+                <button type="submit">Сохранить файл</button>
+            </form>
+        </center>
+    {% endif%}
+
+</body>
+</html>
