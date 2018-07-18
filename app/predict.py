@@ -2,7 +2,7 @@
 import numpy as np
 import pickle
 import json
-from my_libs.calc_features import *
+from app.my_libs.calc_features import *
 from sklearn.preprocessing import StandardScaler
 import os
 from datetime import datetime
@@ -85,7 +85,7 @@ ls_columns_required = [
 
 load = datetime.now()
 print(os.getcwd())
-database = pd.read_csv('DATA/prepared_to_saw_gp.csv')
+database = pd.read_csv('app/DATA/prepared_to_saw_gp.csv')
 print('База исторических режимов загружена за ', datetime.now() - load)
 
 cleaned_input = pd.DataFrame()
@@ -207,14 +207,13 @@ def make_result_valid_file(file_name, dir_names, targets, output_filename):
     return con, y_valid, y_pred
 
 def main(name):
-    file_name = os.getcwd()+'/input/' + name
-    print(file_name)
+    file_name = os.getcwd()+'/app/input/' + name
     targets = ['Предел текучести', 'Врем. сопротивление']
-    dir_names = [os.getcwd() + '/DATA/MODELS_RF/YS 14june', os.getcwd() + '/DATA/MODELS_RF/H 14june']
+    dir_names = [os.getcwd() + '/app/DATA/MODELS_RF/YS 14june', os.getcwd() + '/app/DATA/MODELS_RF/H 14june']
 
     now = datetime.now()
     time = "%d_%ddate %d_%d_%dtime" % (now.day, now.month, now.hour, now.minute, now.second)
-    output_filename = os.getcwd() + '/output/' + "_" + time + ".xlsx"
+    output_filename = os.getcwd() + '/app/output/' + "_" + time + ".xlsx"
 
     time = datetime.now()
     df, y_valid, y_pred = make_result_valid_file(file_name, dir_names, targets, output_filename)

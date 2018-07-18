@@ -19,4 +19,4 @@ def write():
     ws['A2'] = datetime.datetime.now()
 
     # Save the file
-    wb.save(os.getcwd() + '/output/example.xlsx')
+    wb.save(os.getcwd() + '/app/output/example.xlsx')

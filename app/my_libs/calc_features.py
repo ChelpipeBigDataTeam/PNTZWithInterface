@@ -22,7 +22,7 @@ def reason_del(df):
                 
                 
 def mean_chem(df):
-    mean = pd.read_csv('DATA/mean_chem_steel.csv')               
+    mean = pd.read_csv('app/DATA/mean_chem_steel.csv')
     ls_mark = list(mean['марка стали'])
     for mark in ls_mark:
         if df[df['марка стали']==mark].shape[0]>0:

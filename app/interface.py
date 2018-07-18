@@ -1,12 +1,12 @@
-from flask import Flask, render_template, request, Response, send_file, send_from_directory
+from flask import render_template, request, Response, send_file, send_from_directory
 import os
-import predict
-import addingNumber
+import app.predict as predict
+import app.addingNumber as addingNumber
+
+from app import app
 
 
-app = Flask(__name__)
-
-path = os.getcwd() + '/output/'
+path = os.getcwd() + '/app/output/'
 
 @app.route("/", methods=["POST", "GET"])
 def index():
@@ -29,7 +29,7 @@ def index():
 
         args["method"] = "POST"
 
-    app = Flask(__name__, template_folder=template_dir)
+    # app = Flask(__name__, template_folder=template_dir)
     return render_template("index.html", args=args)
 
 @app.route("/downloadExcelFile")
