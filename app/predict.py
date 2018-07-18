@@ -125,7 +125,7 @@ def find_close_sort(df):
         answ = answ[answ['Дата термообработки'] == answ['Дата термообработки'].max()][:1]
         tmp = pd.concat([tmp, answ])
         if answ.shape[0] == 0:
-            with open('reason_del.txt', 'a', encoding='utf-8') as f:
+            with open('app/reason_del.txt', 'a', encoding='utf-8') as f:
                 f.write('Базовый режим для строки '+ str(i) + ' не найден.')
             f.close()
             # print('Базовый режим для строки ', i, ' не найден.')

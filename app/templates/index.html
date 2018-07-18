@@ -1,11 +1,6 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Uploads</title>
-</head>
-<body>
-    <p align="center" style="color:#000000; font-size:30px">Предсказательная система ТО "ПНТЗ"</p>
+{% extends "base.html" %}
+
+{% block content %}
     <form action="/" method="POST" enctype="multipart/form-data">
         <center>
             <input type="file" name="file" id="file_id">
@@ -25,6 +20,5 @@
             </form>
         </center>
     {% endif%}
-
-</body>
-</html>
+    <a href="{{ url_for('logout') }}">Выйти</a>
+{% endblock %}

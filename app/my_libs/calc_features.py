@@ -10,8 +10,8 @@ def reason_del(df):
                 arr_col.append(col)
         dict_err[i] = arr_col
 
-    open('reason_del.txt', 'w', encoding='utf-8')
-    with open('reason_del.txt', 'a', encoding='utf-8') as f:
+    open('app/reason_del.txt', 'w', encoding='utf-8')
+    with open('app/reason_del.txt', 'a', encoding='utf-8') as f:
         for i, j in zip(dict_err.keys(), dict_err.values()):
             arr_col = []
             for k in ls_columns_required:
