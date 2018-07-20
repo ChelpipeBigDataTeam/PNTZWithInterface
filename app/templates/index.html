@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <p align="right" style="color:#000000; font-size:17px">Вы вошли в систему как: {{ current_user.username }}</p>
+    <p align="right"><a href="{{ url_for('logout') }}">Выйти</a></p>
+    <p align="center" style="color:#000000; font-size:30px">Предсказательная система ТО "ПНТЗ"</p>
     <form action="/" method="POST" enctype="multipart/form-data">
         <center>
             <input type="file" name="file" id="file_id">
@@ -13,12 +16,13 @@
     </form>
     {% if args["method"] == "POST" %}
         <center>
-            <p align="center" style="color:#000000; font-size:16px">Файл успешно загружен, данные расcчитаны</p>
-            <p align="center" style="color:#000000; font-size:16px">{{args["data"]}}</p>
+            <p align="center" style="color:#000000; font-size:16px">Данные расcчитаны</p>
+            {% if args["data"] != null %}
+                <p align="center" style="color:#000000; font-size:16px">Ошибка: {{args["data"]}}</p>
+            {% endif%}
             <form action="/downloadExcelFile">
                 <button type="submit">Сохранить файл</button>
             </form>
         </center>
     {% endif%}
-    <a href="{{ url_for('logout') }}">Выйти</a>
 {% endblock %}
