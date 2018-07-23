@@ -12,8 +12,6 @@ from app.models import User
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # if 'username' in session:
-    #     return redirect(url_for('index'))
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -38,13 +36,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
-
-# @app.route('/back')
-#
-# def back():
-#     return redirect(url_for('index'))
-
 
 path = os.getcwd() + '/app/output/'
 
@@ -85,8 +76,4 @@ def getExcelFile():
                      mimetype='text/xlsx',
                      attachment_filename='output.xlsx',
                      as_attachment=True)
-
-#
-# if __name__ == "__main__":
-#    app.run(threaded=True)
 

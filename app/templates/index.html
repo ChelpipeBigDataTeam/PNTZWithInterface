@@ -3,7 +3,7 @@
 {% block content %}
     <p align="right" style="color:#000000; font-size:17px">Вы вошли в систему как: {{ current_user.username }}</p>
     <p align="right"><a href="{{ url_for('logout') }}">Выйти</a></p>
-    <p align="center" style="color:#000000; font-size:30px">Предсказательная система ТО "ПНТЗ"</p>
+    <p align="center" style="color:#000000; font-size:28px">Рекомендательная система режимов термообработки в ФЦ АО «ПНТЗ»</p>
     <form action="/" method="POST" enctype="multipart/form-data">
         <center>
             <input type="file" name="file" id="file_id">
