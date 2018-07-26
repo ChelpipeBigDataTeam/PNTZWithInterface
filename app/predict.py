@@ -206,8 +206,11 @@ def make_result_valid_file(file_name, dir_names, targets, output_filename):
     con.to_excel(output_filename)
     return con, y_valid, y_pred
 
-def main(name):
-    file_name = os.getcwd()+'/app/input/' + name
+def main(file):
+# if __name__ == "__main__":
+#     file_name = os.getcwd()+'/app/input/' + name
+    file_name = file
+    # file_name = os.getcwd() + '/app/input/input.xlsx'
     targets = ['Предел текучести', 'Врем. сопротивление']
     dir_names = [os.getcwd() + '/app/DATA/MODELS_RF/YS 14june', os.getcwd() + '/app/DATA/MODELS_RF/H 14june']
 

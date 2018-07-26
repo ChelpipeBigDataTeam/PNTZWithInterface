@@ -12,6 +12,8 @@ from app.models import User
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # if 'username' in session:
+    #     return redirect(url_for('index'))
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -37,6 +39,7 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+
 path = os.getcwd() + '/app/output/'
 
 
@@ -53,7 +56,7 @@ def index():
         algorithm = request.form['options']
         if (algorithm == 'predict'):
             if bool(file.filename) and (file.filename.rsplit('.', 1)[1].lower() == 'xlsx'):
-                predict.main(file.filename)
+                predict.main(file)
                 handle = open("app/reason_del.txt", "r", encoding="utf-8")
                 data = handle.read()
                 args["data"] = data
@@ -76,4 +79,8 @@ def getExcelFile():
                      mimetype='text/xlsx',
                      attachment_filename='output.xlsx',
                      as_attachment=True)
+
+#
+# if __name__ == "__main__":
+#    app.run(threaded=True)
 
