@@ -36,6 +36,12 @@ var/
 pip-log.txt
 pip-delete-this-directory.txt
 
+GeneratePassword.py
+app.db
+~$*.xls*
+*.xlsx
+*.xls
+
 # Unit test / coverage reports
 htmlcov/
 .tox/

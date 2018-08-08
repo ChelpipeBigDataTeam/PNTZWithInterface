@@ -1,6 +1,7 @@
 from flask import render_template, request, send_file,session
 import os
-import app.predict as predict
+import glob
+import app.predict_one_model as predict
 import app.addingNumber as addingNumber
 from flask import flash, redirect, url_for
 from flask_login import login_user, logout_user, current_user, login_required
@@ -12,8 +13,7 @@ from app.models import User
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # if 'username' in session:
-    #     return redirect(url_for('index'))
+
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -47,9 +47,6 @@ path = os.getcwd() + '/app/output/'
 @app.route('/index/<username>')
 @login_required
 def index():
-    for file in os.listdir(path):
-        os.remove(path+file)
-
     args = {"method": "GET"}
     if request.method == "POST":
         file = request.files["file"]
@@ -71,8 +68,9 @@ def index():
 @app.route("/downloadExcelFile")
 @login_required
 def getExcelFile():
-    files = os.listdir(path)
-    with open(path + files[0]) as fp:
+    list_of_files = glob.glob(path + '*')
+    latest_file = max(list_of_files, key=os.path.getctime)
+    with open(latest_file) as fp:
         name = fp.name
 
     return send_file(name,
@@ -80,7 +78,5 @@ def getExcelFile():
                      attachment_filename='output.xlsx',
                      as_attachment=True)
 
-#
-# if __name__ == "__main__":
-#    app.run(threaded=True)
+
 
