@@ -1,8 +1,11 @@
 ﻿import pandas as pd
 import numpy as np
 import unittest
+<<<<<<< HEAD
 from datetime import datetime
 import os
+=======
+>>>>>>> f308dd357f9e616f12cb69b79c15d41170bc56b4
 
 
 def bath2spr(df):
@@ -41,6 +44,7 @@ def mean_chem(df):
             d = {i: list(tmp2[i].values())[0] for i in tmp2}
             tmp = df.loc[df['марка стали'] == mark, ls_chem].fillna(d)
             df.loc[df['марка стали'] == mark, ls_chem] = tmp
+<<<<<<< HEAD
     return df
 
 
@@ -57,6 +61,24 @@ def len_pipe(df):
     return df
 
 
+=======
+    return df
+
+
+def len_pipe(df):
+    df['длина трубы'] = 0
+    for x, i in zip(df['диаметр'], df['диаметр'].index):
+        if pd.notna(x):
+            if x < 115:
+                df.loc[i, 'длина трубы'] = df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] * (
+                        df.loc[i, 'шаг балок закалочная печь, сек'] - 8)
+            else:
+                df.loc[i, 'длина трубы'] = df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] * (
+                        2 * df.loc[i, 'шаг балок закалочная печь, сек'] - 8)
+    return df
+
+
+>>>>>>> f308dd357f9e616f12cb69b79c15d41170bc56b4
 def new_spr(df):
     for x, i in zip(df['диаметр'], df['диаметр'].index):
         if pd.notna(x):
@@ -78,7 +100,11 @@ def del_bath(df):
     return df
 
 
+<<<<<<< HEAD
 def clean_data(file_name, ls_need_col, username):
+=======
+def clean_data(file_name, ls_need_col):
+>>>>>>> f308dd357f9e616f12cb69b79c15d41170bc56b4
     '''Доочистка prepared файлов'''
     df = pd.read_excel(file_name)
 

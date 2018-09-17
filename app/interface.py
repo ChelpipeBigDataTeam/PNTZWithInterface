@@ -2,7 +2,10 @@ from flask import render_template, request, send_file,session, send_from_directo
 import os
 import glob
 import app.predict_one_model as predict
+<<<<<<< HEAD
 import app.optimizer1 as optimizer
+=======
+>>>>>>> f308dd357f9e616f12cb69b79c15d41170bc56b4
 import app.addingNumber as addingNumber
 from flask import flash, redirect, url_for
 from flask_login import login_user, logout_user, current_user, login_required
@@ -84,6 +87,10 @@ def getExcelFile():
                      attachment_filename='output.xlsx',
                      as_attachment=True)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> f308dd357f9e616f12cb69b79c15d41170bc56b4
 
 # @app.route("/redirect")
 # @login_required
