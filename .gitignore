@@ -8,6 +8,10 @@ __pycache__/
 # C extensions
 *.so
 
+app/input/
+app/DATA
+app/output/
+
 # Distribution / packaging
 .Python
 env/
@@ -35,6 +39,12 @@ var/
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+
+GeneratePasswords.py
+app.db
+~$*.xls*
+*.xlsx
+*.xls
 
 # Unit test / coverage reports
 htmlcov/

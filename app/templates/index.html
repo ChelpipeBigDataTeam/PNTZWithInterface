@@ -16,13 +16,19 @@
     </form>
     {% if args["method"] == "POST" %}
         <center>
-            <p align="center" style="color:#000000; font-size:16px">Данные расcчитаны</p>
-            {% if args["data"] %}
-                <p align="center" style="color:#000000; font-size:16px">Ошибка: {{args["data"]}}</p>
+            {% if args["error1"] %}
+                <p align="center" style="color:#000000; font-size:16px">{{args["error1"]}}</p>
+            {% elif args["error2"]%}
+                <p align="center" style="color:#000000; font-size:16px">{{args["error2"]}}</p>
+            {% else %}
+                <p align="center" style="color:#000000; font-size:16px">Данные расcчитаны</p>
+                {% if args["error3"] %}
+                    <p align="center" style="color:#000000; font-size:16px">{{args["error3"]}}</p>
+                {% endif%}
+                <form action="/downloadExcelFile">
+                    <button type="submit">Сохранить файл</button>
+                </form>
             {% endif%}
-            <form action="/downloadExcelFile">
-                <button type="submit">Сохранить файл</button>
-            </form>
         </center>
     {% endif%}
 {% endblock %}
