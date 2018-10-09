@@ -2,11 +2,7 @@ from flask import render_template, request, send_file,session, send_from_directo
 import os
 import glob
 import app.predict_one_model as predict
-<<<<<<< HEAD
 import app.optimizer1 as optimizer
-=======
->>>>>>> f308dd357f9e616f12cb69b79c15d41170bc56b4
-import app.addingNumber as addingNumber
 from flask import flash, redirect, url_for
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
@@ -59,18 +55,46 @@ def index():
             if bool(file.filename) and (file.filename.rsplit('.', 1)[1].lower() == 'xlsx'):
                 predict.main(file, current_user.username)
         elif (algorithm == 'optimizer'):
-            ans, all_str_delete = optimizer.main(file, current_user.username)
-            print(ans)
+            ans, all_str_delete, array_null = optimizer.main(file, current_user.username)
+            print(ans, all_str_delete, array_null)
             if ans == 165:
                 args["error1"] = 'Таблица пустая! Необходимо заполнить выделенные цветом столбцы!'
             elif ans != [] and all_str_delete:
                 args["error2"] = 'Для строк ' + str(ans) + ' из входного файла в исторических данных типоразмер с данной маркой стали и/или группой прочности не найден. Работа оптимизатора не возможна, заполните столбцы "Параметры для оптимизации конкретного режима", либо воспользуйтесть моделью предсказания свойств.'
             elif ans != [] and ~all_str_delete:
                 args["error3"] = 'Для строк ' + str(ans) + ' из входного файла в исторических данных типоразмер с данной маркой стали и/или группой прочности не найден. Работа оптимизатора не возможна, заполните столбцы "Параметры для оптимизации конкретного режима", либо воспользуйтесть моделью предсказания свойств.'
+            if array_null != []:
+                args["error11"] = 'Для строк ' + str(array_null) + ' из входного файла не найдены границы прочности и текучести. Заполните их вручную и запустите оптимизатор повторно.'
+
         args["method"] = "POST"
 
     return render_template("index.html", args=args)
 
+@app.route("/downloadInputFiles")
+@login_required
+def downloadInputFiles():
+    return render_template("downloadFiles.html")
+
+@app.route("/back")
+@login_required
+def back():
+    return redirect(url_for('index'))
+
+@app.route("/downloadInputPredict")
+@login_required
+def downloadInputPredict():
+    return send_file("C:/Users/Anastasiya.Mittseva/Desktop/PNTZWithInterface/app/input_predict_template.xlsx",
+                     mimetype='text/xlsx',
+                     attachment_filename='InputPredictTemplate.xlsx',
+                     as_attachment=True)
+
+@app.route("/downloadInputOptimizer")
+@login_required
+def downloadInputOptimizer():
+    return send_file("C:/Users/Anastasiya.Mittseva/Desktop/PNTZWithInterface/app/input_optimizer_template.xlsx",
+                     mimetype='text/xlsx',
+                     attachment_filename='InputOptimizerTemplate.xlsx',
+                     as_attachment=True)
 
 @app.route("/downloadExcelFile")
 @login_required
@@ -87,10 +111,6 @@ def getExcelFile():
                      attachment_filename='output.xlsx',
                      as_attachment=True)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f308dd357f9e616f12cb69b79c15d41170bc56b4
 
 # @app.route("/redirect")
 # @login_required

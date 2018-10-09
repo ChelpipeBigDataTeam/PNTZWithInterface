@@ -1,11 +1,8 @@
 ﻿import pandas as pd
 import numpy as np
 import unittest
-<<<<<<< HEAD
 from datetime import datetime
 import os
-=======
->>>>>>> f308dd357f9e616f12cb69b79c15d41170bc56b4
 
 
 def bath2spr(df):
@@ -44,49 +41,30 @@ def mean_chem(df):
             d = {i: list(tmp2[i].values())[0] for i in tmp2}
             tmp = df.loc[df['марка стали'] == mark, ls_chem].fillna(d)
             df.loc[df['марка стали'] == mark, ls_chem] = tmp
-<<<<<<< HEAD
     return df
 
 
 def len_pipe(df):
-    df['длина трубы'] = 0
+    df['Длина трубы'] = 0
     for x, i in zip(df['диаметр'], df['диаметр'].index):
         if pd.notna(x):
             if x < 115:
-                df.loc[i, 'длина трубы'] = df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] * (
+                df.loc[i, 'Длина трубы'] = df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] * (
                         df.loc[i, 'шаг балок закалочная печь, сек'] - 8)
             else:
-                df.loc[i, 'длина трубы'] = df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] * (
+                df.loc[i, 'Длина трубы'] = df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] * (
                         2 * df.loc[i, 'шаг балок закалочная печь, сек'] - 8)
     return df
 
 
-=======
-    return df
-
-
-def len_pipe(df):
-    df['длина трубы'] = 0
-    for x, i in zip(df['диаметр'], df['диаметр'].index):
-        if pd.notna(x):
-            if x < 115:
-                df.loc[i, 'длина трубы'] = df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] * (
-                        df.loc[i, 'шаг балок закалочная печь, сек'] - 8)
-            else:
-                df.loc[i, 'длина трубы'] = df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] * (
-                        2 * df.loc[i, 'шаг балок закалочная печь, сек'] - 8)
-    return df
-
-
->>>>>>> f308dd357f9e616f12cb69b79c15d41170bc56b4
 def new_spr(df):
     for x, i in zip(df['диаметр'], df['диаметр'].index):
         if pd.notna(x):
             if x < 114:
-                df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] = df.loc[i, 'длина трубы'] / (
+                df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] = df.loc[i, 'Длина трубы'] / (
                         df.loc[i, 'шаг балок закалочная печь, сек'] - 8)
             else:
-                df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] = df.loc[i, 'длина трубы'] / (
+                df.loc[i, 'Скорость прохождения трубы через спрейер, м/с'] = df.loc[i, 'Длина трубы'] / (
                         2 * df.loc[i, 'шаг балок закалочная печь, сек'] - 8)
     return df
 
@@ -100,11 +78,7 @@ def del_bath(df):
     return df
 
 
-<<<<<<< HEAD
 def clean_data(file_name, ls_need_col, username):
-=======
-def clean_data(file_name, ls_need_col):
->>>>>>> f308dd357f9e616f12cb69b79c15d41170bc56b4
     '''Доочистка prepared файлов'''
     df = pd.read_excel(file_name)
 
@@ -464,3 +438,32 @@ def calc_AC(df):
     del df['AC1_1']
     del df['AC1_2']
     return df
+
+# ADD START
+def add_tons_per_hour(df):
+    # print('____')
+    # print(df)
+    df.reset_index(inplace=True, drop=True)
+
+    df['massa'] = 7.8 * (df['Длина трубы'] / 1000) * 3.14 * 0.25 * (
+            (df['диаметр'] / 1000) ** 2 - (df['диаметр'] / 1000 - 2 * df['толщина стенки'] / 1000) ** 2)
+    df['coeff'] = None
+    # print(df)
+    for i in range(df.shape[0]):
+        if (df[df.index == i]['диаметр'].values > 114) or (
+                df[df.index == i]['диаметр'].values == 108) and (
+                df[df.index == i]['толщина стенки'].values >= 14) or (
+                df[df.index == i]['диаметр'].values == 107.95) and (
+                df[df.index == i]['толщина стенки'].values >= 14):
+            # df['coeff'][i] = 2
+            df.loc[i, u'coeff'] = 2
+        else:
+            # df['coeff'][i] = 1
+            df.loc[i, u'coeff'] = 1
+        df['tons per hour'] = (df['massa'] * 3600) / (df['шаг балок закалочная печь, сек'] * df['coeff'])
+    # print('_______________________________')
+    # print(df['coeff'])
+    del df['coeff']
+    del df['massa']
+    return df
+# END

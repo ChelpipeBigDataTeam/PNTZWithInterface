@@ -120,7 +120,7 @@ ls_temp_o = [
     '4 зона ВТР и уставка отпуск', '5 зона ВТР и уставка отпуск'
 ]
 
-# ls_s_spr = ['Скорость прохождения трубы через спрейер, м/с']
+
 
 ls_shag = [
     'шаг балок закалочная печь, сек', 'шаг балок отпускная печь, сек'
@@ -240,12 +240,12 @@ def is_in_bounds(row, bounds):
             penalty += 100
     return penalty
 
-
 def model_pr(fit_params, all_params, bounds, eta, model, ls_need_col):
     centr_ys = all_params['Текучесть середина']
     centr_h = all_params['Прочность середина']
-    all_params = pd.concat([all_params[list(set(ls_need_col + ['длина трубы']) - set(ls_fit_param))],
+    all_params = pd.concat([all_params[list(set(ls_need_col + ['Длина трубы']) - set(ls_fit_param))],
                             pd.Series(fit_params, index=ls_fit_param)])
+
     fit_params = pd.DataFrame(fit_params, index=ls_fit_param).T
     score = 0
     # пересчет параметров
@@ -260,6 +260,11 @@ def model_pr(fit_params, all_params, bounds, eta, model, ls_need_col):
     all_params.dropna(inplace=True)
     all_params = all_params.astype(np.float32)
 
+    # ADD START
+    all_params = add_tons_per_hour(all_params)
+
+    # END
+
     pred = model.predict(all_params[ls_need_col])
     tmp_score = np.abs(pred[:, 0] - centr_ys) + np.abs(pred[:, 1] - centr_h)
     if tmp_score < 2:
@@ -272,11 +277,32 @@ def model_pr(fit_params, all_params, bounds, eta, model, ls_need_col):
     score += max(np.abs(all_params['шаг балок закалочная печь, сек'].values - 24),
                  np.abs(all_params['шаг балок отпускная печь, сек'].values - 24)) * eta
     score += is_in_bounds(fit_params, bounds)
+
+
+    # ADD START
+    if all_params['tons per hour'].values >= 30:
+        score += 300
+    # END
+
     return score
 
+def setLimits(table_for_optimize, table_with_limits):
+    size = table_for_optimize.shape[0]
+    for i in range(size):
+        if math.isnan(table_for_optimize["Предел текучести нижняя граница"][i]):
+            tmp = table_with_limits.loc[(table_with_limits['Группа прочности'] == table_for_optimize["Гр. прочн."][i])& (table_with_limits['Марка стали'] == table_for_optimize['марка стали'][i]) & (table_with_limits['Стандарт на трубы'] == table_for_optimize["Стандарт трубы"][i])]
+            print(tmp)
+            if (tmp.shape[0] != 0):
+                tmp = tmp.reset_index()
+                table_for_optimize["Предел текучести нижняя граница"][i] = tmp["Предел текучести нижняя граница "][0]
+                if math.isnan(table_for_optimize["Предел текучести верхняя граница"][i]):
+                    table_for_optimize["Предел текучести верхняя граница"][i] = tmp["Предел текучести верхняя граница"][0]
+                if math.isnan(table_for_optimize["Предел прочности нижняя граница"][i]):
+                    table_for_optimize["Предел прочности нижняя граница"][i] = tmp["Временное сопротивление "][0]
 
 def common(
         file,  # имя входного файла
+        limits,
         model_dir_name,  # путь к директории с моделью + ее имя
         saw_db_filename,  # путь к файлу для поиска исторических режимов + его название
         input_part,  # путь к папке куда будут сохраняться запросы
@@ -284,9 +310,22 @@ def common(
         username
 ):
     table_for_optimize = pd.read_excel(file, skiprows=1)
-    print(table_for_optimize.shape)
+    table_for_optimize['Длина трубы'] = table_for_optimize['Длина трубы'].fillna(12000)
+    table_with_limits = pd.read_excel(limits)
+    setLimits(table_for_optimize, table_with_limits)
+
+    table_null = table_for_optimize[~table_for_optimize['Предел текучести нижняя граница'].notnull()]
+    table_for_optimize = table_for_optimize[table_for_optimize['Предел текучести нижняя граница'].notnull()]
+
+    array_null = table_null.index
+    null = []
+    for i in range(len(array_null)):
+        null.append(array_null[i]+3)
+    print(null)
+
+
     if table_for_optimize.shape[0] == 0:
-        return 165, True
+        return 165, True, null
     now = datetime.now()
     time = "%d_%ddate %d_%d_%dtime" % (now.day, now.month, now.hour, now.minute, now.second)
     input_filename = os.getcwd() + input_part + "optimizer_input_" + time + "_"+ username + ".xlsx"
@@ -301,9 +340,9 @@ def common(
     table_for_optimize['Текучесть середина'] = (table_for_optimize[
                                                     'Предел текучести нижняя граница'] + table_for_optimize[
                                                     'Предел текучести верхняя граница']) / 2.0
-    print(table_for_optimize.shape)
+    # print(table_for_optimize.shape)
     if table_for_optimize.shape[0] == 0:
-        return 165, True
+        return 165, True, null
     database = pd.read_csv(saw_db_filename, index_col=0)
     database = calc_all_features(database)
     answ = find_close_sort(database, table_for_optimize, ls_need_col)
@@ -328,8 +367,11 @@ def common(
     print(answ)
     print(table_for_optimize)
 
+    for i in range(len(errors)):
+        errors[i] = errors[i] + 3
+
     if answ.shape[0] == 0:
-        return errors, True
+        return errors, True, null
     try_ = table_for_optimize.copy()
     try_ = try_.dropna()
 
@@ -342,9 +384,11 @@ def common(
     try:
         answ = answ[ls_columns_output]
     except KeyError:
-        return errors, True
+        return errors, True, null
 
-    answ = pd.concat([answ, table_for_optimize[['Прочность середина', 'Текучесть середина']]], axis=1)
+    # ADD START
+    answ = pd.concat([answ, table_for_optimize[['Прочность середина', 'Текучесть середина', 'Длина трубы']]], axis=1)
+    # END
 
     answ = mean_chem(answ)
 
@@ -352,13 +396,12 @@ def common(
     answ[ls_chem] = answ[ls_chem].fillna(0)
 
     answ = calc_all_features(answ)
-    answ = len_pipe(answ)
     answ = calc_AC(answ)
 
     answ.reset_index(inplace=True, drop=True)
     print(answ.shape)
     if answ.shape[0] == 0:
-        return errors, True
+        return errors, True, null
     # Температура трубы после спреера!!!!!!!! Нужна для модели, чатсо ее нет, заполняю как 70, чтобы это хоть както работало
     # Исправить когда будет время!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     """TODO"""
@@ -374,8 +417,7 @@ def common(
     for el in ls_shag:
         X_c_down[el] = X_c_down.apply(lambda x: max(24, x[el] - 8), axis=1)
 
-    # X_c_down['Скорость прохождения трубы через спрейер, м/с'] = X_c_down[
-    #     'Скорость прохождения трубы через спрейер, м/с'].apply(lambda x: x if x>0 else 0)
+
 
     X_c_up = calc_all_features(answ[ls_need_col + ['AC3', 'AC1']]).dropna().copy()
 
@@ -383,15 +425,15 @@ def common(
         X_c_up[el] = X_c_up.apply(lambda x: min(990, x[el] + 50), axis=1)
 
     for col in ls_temp_o:
-        X_c_up[col] = X_c_up.apply(lambda x: min(x['AC1'], x[col] - 50), axis=1)
+        X_c_up[col] = X_c_up.apply(lambda x: min(x['AC1'], x[col] + 50), axis=1)
 
-    answ_n = answ[ls_need_col + models_bonds + ['длина трубы']].dropna()
+    answ_n = answ[ls_need_col + models_bonds + ['Длина трубы']].dropna()
 
-    answ_n = answ[ls_columns_output + models_bonds + ['длина трубы']]
+    answ_n = answ[ls_columns_output + models_bonds + ['Длина трубы']]
 
     from scipy.optimize import brute, basinhopping
 
-    ls_answ_n = ls_columns_output + models_bonds + ['длина трубы']
+    ls_answ_n = ls_columns_output + models_bonds + ['Длина трубы']
     ls_answ_n.remove('Примечание')
     answ_n = answ[ls_answ_n]
     answ_n = answ_n
@@ -406,10 +448,12 @@ def common(
     X_a.reset_index(inplace=True, drop=True)
     X_b.reset_index(inplace=True, drop=True)
     answ_n.reset_index(inplace=True, drop=True)
+
     for it in X_a.index:
         bounds = [(i, j) for i, j in zip(X_a.loc[it, ls_fit_param], X_b.loc[it, ls_fit_param])]
         print(answ_n.iloc[it, -2], answ_n.iloc[it, -3])
         all_params = answ_n.iloc[it, :]
+
         fit_p = answ_n.loc[it, ls_fit_param]
 
         #     a = minimize(lambda fit_params: model_pr(fit_params,
@@ -440,7 +484,7 @@ def common(
         print(a)
         #     tmp_res.append(all_params)
         all_params = pd.concat([all_params[set(
-            ls_columns_output + ['длина трубы', 'Текучесть середина', 'Прочность середина']) - set(ls_fit_param)],
+            ls_columns_output + ['Длина трубы', 'Текучесть середина', 'Прочность середина']) - set(ls_fit_param)],
                                 pd.Series(a, index=ls_fit_param)])
 
         answers_array.append(all_params)
@@ -461,10 +505,11 @@ def common(
 
     output_filename = os.getcwd() + output_part + "optimizer_output_" + time + "_" + username + ".xlsx"
     output_df.to_excel(output_filename)
-    return errors, False
+    return errors, False, null
 
 def main(file, username):
     return common(file,
+           'app/DATA/Limits.xlsx',
            'app/DATA/MODELS_RF/H+YS+BATH GS',
            'app/DATA/prepared_to_saw_gp_del_bath.csv',
            '/app/input/',

@@ -4,6 +4,7 @@
     <p align="right" style="color:#000000; font-size:17px">Вы вошли в систему как: {{ current_user.username }}</p>
     <p align="right"><a href="{{ url_for('logout') }}">Выйти</a></p>
     <p align="center" style="color:#000000; font-size:28px">Рекомендательная система режимов термообработки в ФЦ АО «ПНТЗ»</p>
+    <p align="right"><a href="{{ url_for('downloadInputFiles') }}">Скачать входной файл</a></p>
     <form action="/" method="POST" enctype="multipart/form-data">
         <center>
             <input type="file" name="file" id="file_id">
@@ -16,12 +17,20 @@
     </form>
     {% if args["method"] == "POST" %}
         <center>
-            {% if args["error1"] %}
+            {% if args["error1"] and args["error11"] %}
+                <p align="center" style="color:#000000; font-size:16px">{{args["error11"]}}</p>
+            {% elif args["error1"] %}
                 <p align="center" style="color:#000000; font-size:16px">{{args["error1"]}}</p>
+            {% elif args["error2"] and args["error11"]%}
+                <p align="center" style="color:#000000; font-size:16px">{{args["error11"]}}</p>
+                <p align="center" style="color:#000000; font-size:16px">{{args["error2"]}}</p>
             {% elif args["error2"]%}
                 <p align="center" style="color:#000000; font-size:16px">{{args["error2"]}}</p>
             {% else %}
                 <p align="center" style="color:#000000; font-size:16px">Данные расcчитаны</p>
+                {% if args["error11"] %}
+                     <p align="center" style="color:#000000; font-size:16px">{{args["error11"]}}</p>
+                {% endif%}
                 {% if args["error3"] %}
                     <p align="center" style="color:#000000; font-size:16px">{{args["error3"]}}</p>
                 {% endif%}

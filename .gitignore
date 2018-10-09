@@ -9,7 +9,7 @@ __pycache__/
 *.so
 
 app/input/
-app/DATA
+app/DATA/
 app/output/
 
 # Distribution / packaging
